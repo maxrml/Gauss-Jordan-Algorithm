@@ -49,10 +49,8 @@ fn main() {
                 if counter == row_length {
                     println!("{element:?}]");
                     counter = 0;
-                }
-                else {
-                    if counter == 1 {print!("[")}
-                    else{}
+                } else {
+                    if counter == 1 { print!("[") } else {}
                     print!("{:?} ", element);
                 }
             }
