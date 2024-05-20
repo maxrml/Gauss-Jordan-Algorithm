@@ -8,9 +8,9 @@ there are many ways to accomplish the Gauss-Elimination. My way might not be the
 
 # The idea is quite simple and works in a few steps:
 1. The Matrix, represented by a Vector of i32 Vectors, gets sorted such that rows with the more zeros in
-the front are lower sorted.
+the front are sorted last.
 2. Starting at row 1, you iterate through the row and look for the first element != 0 (Pivot Element)
-3. You search in the lower rows if in row 2, 3... there are also pivot elements at the same space
+3. You search in the lower rows if in row 2, 3,..., n there are also pivot elements at the same space
 if yes: eliminate the pivot elements in the lower rows by elementary line transformation
 if not: go a row lower and search for the pivot element and continue
 
