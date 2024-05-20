@@ -2,7 +2,7 @@
 How can you implement the Gauss-Jordan-Algorithm to bring a matrix in their row echelon form?
 
 With this program I want to offer a quite easy way to do so, since there is not the one right algorithm,
-there are many ways to accomplish the Gauss-Elimination. My way might be the best in terms of time complexity
+there are many ways to accomplish the Gauss-Elimination. My way might not be the best in terms of time complexity
 but for the sake of general complexity "coding-difficulty-like" this might be a good choice!
 
 The idea is quite simple and works in a few steps:
@@ -33,7 +33,7 @@ fn main() {
         let edited_row: Vec<i32> = unedited_row //Create an instance for the edited rows, which should include each one i32
             .trim()//Delete whitespace in the end and beginning and line breaks
             .split_whitespace()//Split the remaining numbers by whitespace
-            .map(|num|num.parse()//Use for each split i32 the closure num.parse() such that each string number gets an i32 value
+            .map(|num| num.parse()//Use for each split i32 the closure num.parse() such that each string number gets an i32 value
                 .expect("Error by parsing your number!"))//Error handling
             .collect();//Safe each i32 in the vec edited_row
         matrix.push(edited_row);//Add the vec in to the vector of vectors(matrix)
@@ -43,44 +43,40 @@ fn main() {
     // Third part: Print the Vec<Vec<i32>> as an actual matrix
     let mut counter = 0; // Create a counter such that the matrix uses line breaks at the right point
     let row_length = solved_matrix[0].len();
-        for row in solved_matrix.iter() { //Print Vec<Vec<>> as a Matrix
-            for element in row.iter() { //For each element printed the counter goes up by 1, when the counter equals the row length set it back to 0 and do a line break
-                counter += 1;
-                if counter == row_length {
-                    println!("{element:?}]");
-                    counter = 0;
-                } else {
-                    if counter == 1 { print!("[") } else {}
-                    print!("{:?} ", element);
-                }
+    for row in solved_matrix.iter() { //Print Vec<Vec<>> as a Matrix
+        for element in row.iter() { //For each element printed the counter goes up by 1, when the counter equals the row length set it back to 0 and do a line break
+            counter += 1;
+            if counter == row_length {
+                println!("{element:?}]");
+                counter = 0;
+            } else {
+                if counter == 1 { print!("[") } else {}
+                print!("{:?} ", element);
             }
-      }
+        }
+    }
 }
 
 fn gauss_elimination(matrix: &mut Vec<Vec<i32>>) -> &mut Vec<Vec<i32>> {
     let current_row = 1;
-    while current_row > matrix.len() {
+    while current_row < matrix.len() {
         sort(matrix);
         let mut pivot_space = matrix[current_row].iter().position(|&x| x != 0);
 
         match pivot_space {
-            Some(_) => {
-                let mut n = 1;
-                loop {
-                if matrix[current_row + n].iter().position(|&x| x != 0) == pivot_space {
-                    n += 1;
+            Some(pivot_index) => {
+                let mut n = 0;
+                    while current_row + n < matrix.len() && matrix[current_row + n].iter().position(|&x| x != 0) == Some(pivot_index) {
+                        n += 1;
                     }
-                    else{
-                        break;
-                    }
-                }
                 while n != 0 {
-                    let new_row = row_add(&mut matrix[current_row].clone(), &mut matrix[current_row+n].clone(), pivot_space.unwrap());
-                    let _ = std::mem::replace(&mut matrix[current_row + n], new_row);
+                    let new_row = row_add(&mut matrix[current_row].clone(), &mut matrix[current_row+n-1].clone(), pivot_space.unwrap());
+                    let _ = std::mem::replace(&mut matrix[current_row + n - 1], new_row);
+                    n -= 1;
                 }
-                return matrix
+                return sort(matrix)
             }
-            None => return matrix
+            None => return sort(matrix)
         }
     }
     matrix
@@ -90,7 +86,7 @@ fn sort(matrix: &mut Vec<Vec<i32>>) -> &mut Vec<Vec<i32>>{
 
     matrix.sort_by_key(|vec| count_leading_zeros(vec));
 
-    return matrix;
+    matrix
 }
 
 fn count_leading_zeros(vec: &Vec<i32>) -> usize {
@@ -102,14 +98,11 @@ fn count_leading_zeros(vec: &Vec<i32>) -> usize {
 
 
 
-fn row_add(row1: &mut Vec<i32>, row2: &mut Vec<i32>, pivot_space: usize) -> Vec<i32>{
-    let elimination_factor = row1[pivot_space] / row2[pivot_space];
+fn row_add(row1: &mut Vec<i32>, row2: &mut Vec<i32>, pivot_space: usize) -> Vec<i32> {
+    let elimination_factor = -(row1[pivot_space] as f64 / row2[pivot_space] as f64) as i32;
     for element in 0..row1.len() {
-        row1[element] *= elimination_factor;
+        row1[element] += elimination_factor * row2[element];
     }
-    let result: Vec<i32> = row1.iter() //Iterate above the first Vector
-        .zip(row2.iter())// Iterate above the second Vector, zip the Elements into a Tuple
-        .map(|(&x, &y) | x + y)//Iterate above the Tuples and add the Elements
-        .collect(); //Save the Elements into "result"
-    return result;
+    row1.clone()
 }
+
